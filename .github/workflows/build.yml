@@ -1,53 +1,53 @@
-name: Build and Deploy Frontend
+name: Build and Deploy
 
 on:
-   push:
-     branches:
-       - main
- workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
-   runs-on: ubuntu-latest
- steps:
-  # Checkout source code
-  - name: Checkout code
-    uses: actions/checkout@v4
+    runs-on: ubuntu-latest
 
-  # Install Node.js
-  - name: Setup Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: 20
-      cache: npm
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  # Install dependencies
-  - name: Install dependencies
-    run: npm ci
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
 
-  # Build frontend
-  - name: Build frontend
-    run: npm run build
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
 
-  # Copy frontend files to server
-  - name: Deploy frontend
-    uses: appleboy/scp-action@v1.0.0
-    with:
-      host: ${{ secrets.SERVER_HOST }}
-      username: ${{ secrets.SERVER_USER }}
-      key: ${{ secrets.SERVER_SSH_KEY }}
-      port: 8080
-      source: "dist/*"
-      target: "/var/www/vam_collection_frontend"
-      strip_components: 1
+      # Build frontend
+      - name: Build frontend
+        run: npm run build
 
-  # Reload Nginx
-  - name: Reload Nginx
-    uses: appleboy/ssh-action@v1.2.2
-    with:
-      host: ${{ secrets.SERVER_HOST }}
-      username: ${{ secrets.SERVER_USER }}
-      key: ${{ secrets.SERVER_SSH_KEY }}
-      port: 22
-      script: |
-        sudo systemctl reload nginx
+      # Copy frontend files to server
+      - name: Deploy frontend
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          source: "dist/*"
+          target: "/var/www/vam_collection_frontend"
+          strip_components: 1
+
+      # Reload Nginx
+      - name: Reload Nginx
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 8080
+          script: |
+            sudo systemctl reload nginx
