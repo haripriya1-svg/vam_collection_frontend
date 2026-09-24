@@ -19,17 +19,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-         
 
       # Install dependencies
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       # Build frontend
       - name: Build frontend
         run: npm run build
 
-      # Copy frontend files to server
+      # Deploy frontend
       - name: Deploy frontend
         uses: appleboy/scp-action@v1.0.0
         with:
